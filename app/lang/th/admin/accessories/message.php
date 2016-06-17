@@ -2,23 +2,23 @@
 
 return array(
 
-    'does_not_exist' => 'Accessory does not exist.',
+    'does_not_exist' => 'ไม่พบอุปกรณ์เสริม',
     'assoc_users'	 => 'อุปกรณ์เสริมนี้ได้เช็คเอ้าท์ให้ผู้ใช้งานแล้วจำนวน :count รายการในปัจจุบัน กรุณาเช็คอินอุปกรณ์เสริม และลองอีกครั้ง ',
 
     'create' => array(
-        'error'   => 'Accessory was not created, please try again.',
-        'success' => 'Accessory created successfully.'
+        'error'   => 'อุปกรณ์เสริมยังไม่ได้ถูกสร้าง กรุณาลองใหม่อีกครั้ง',
+        'success' => 'อุปกรณ์เสริมได้ถูกสร้างเรียบร้อยแล้ว'
     ),
 
     'update' => array(
-        'error'   => 'Accessory was not updated, please try again',
-        'success' => 'Accessory updated successfully.'
+        'error'   => 'ยังไม่ได้แก้ไขอุปกรณ์เสริม กรุณาลองใหม่',
+        'success' => 'แก้ไขอุปกรณ์เสริมสำเร็จ'
     ),
 
     'delete' => array(
-        'confirm'   => 'คุณแน่ใจที่ต้องการจะลบหมวดหมู่นี้?',
-        'error'   => 'มีปัญหาขณะลบหมวดหมู่นี้ กรุณาลองอีกครั้ง',
-        'success' => 'ลบหมวดหมู่เรียบร้อยแล้ว'
+        'confirm'   => 'Are you sure you wish to delete this accessory?',
+        'error'   => 'There was an issue deleting the accessory. Please try again.',
+        'success' => 'The accessory was deleted successfully.'
     ),
 
      'checkout' => array(

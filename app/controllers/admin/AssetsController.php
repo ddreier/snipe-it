@@ -68,7 +68,7 @@ class AssetsController extends AdminController
         $manufacturer_list = manufacturerList();
         $category_list = categoryList();
         $supplier_list = suppliersList();
-        $company_list = Company::getSelectList();
+        $company_list = companyList();
         $assigned_to = usersList();
         $statuslabel_types = statusTypeList();
 
@@ -253,7 +253,7 @@ class AssetsController extends AdminController
         $manufacturer_list = manufacturerList();
         $category_list = categoryList();
         $supplier_list = suppliersList();
-        $company_list = Company::getSelectList();
+        $company_list = companyList();
         $assigned_to = usersList();
         $statuslabel_types = statusTypeList();
 
@@ -650,6 +650,7 @@ class AssetsController extends AdminController
             $data['item_name'] = $asset->showAssetName();
             $data['checkin_date'] = $logaction->created_at;
             $data['item_tag'] = $asset->asset_tag;
+            $data['item_serial'] = $asset->serial;
             $data['note'] = $logaction->note;
 
             if ((($asset->checkin_email()=='1')) && ($user) && (!Config::get('app.lock_passwords'))) {
@@ -882,7 +883,7 @@ class AssetsController extends AdminController
         $supplier_list = suppliersList();
         $assigned_to = usersList();
         $statuslabel_types = statusTypeList();
-        $company_list = Company::getSelectList();
+        $company_list = companyList();
 
         $asset = clone $asset_to_clone;
         $asset->id = null;

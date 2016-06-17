@@ -1,8 +1,8 @@
 <?php
 
 return array(
-    'assets_rtd'		=> 'Assets RTD',
-    'assets_checkedout'		=> 'Assets Assigned',
+    'assets_rtd'		=> '자산', // This has NEVER meant Assets Retired. I don't know how it keeps getting reverted.
+    'assets_checkedout'		=> '할당된 자산',
     'id'      		=> '아이디',
     'city'   		=> '시',
     'state'   		=> '주',

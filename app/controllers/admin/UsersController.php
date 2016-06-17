@@ -49,7 +49,7 @@ class UsersController extends AdminController {
       'username' => 'required|min:2|unique:users,deleted_at,NULL',
       'email' => 'email|unique:users,email',
       'password' => 'required|min:6',
-      'password_confirm' => 'required|min:6|same:password',
+      'password_confirm' => 'required|same:password',
       'company_id' => 'integer',
     );
 
@@ -86,7 +86,7 @@ class UsersController extends AdminController {
 
         $location_list = locationsList();
         $manager_list = managerList();
-        $company_list = Company::getSelectList();
+        $company_list = companyList();
 
         /* echo '<pre>';
           print_r($userPermissions);
@@ -285,7 +285,7 @@ class UsersController extends AdminController {
             $this->encodeAllPermissions($permissions);
 
             $location_list = locationsList();
-            $company_list = Company::getSelectList();
+            $company_list = companyList();
             $manager_list = array('' => 'Select a User') + DB::table('users')
                             ->select(DB::raw('concat(last_name,", ",first_name," (",email,")") as full_name, id'))
                             ->whereNull('deleted_at')
@@ -371,21 +371,21 @@ class UsersController extends AdminController {
 
         try {
             // Update the user
-            $user->first_name = Input::get('first_name');
-            $user->last_name = Input::get('last_name');
-            $user->username = Input::get('username');
-            $user->email = Input::get('email');
-            $user->employee_num = Input::get('employee_num');
-            $user->activated = Input::get('activated', $user->activated);
+            $user->first_name = e(Input::get('first_name'));
+            $user->last_name = e(Input::get('last_name'));
+            $user->username = e(Input::get('username'));
+            $user->email = e(Input::get('email'));
+            $user->employee_num = e(Input::get('employee_num'));
+            $user->activated = e(Input::get('activated', $user->activated));
             if (Sentry::getUser()->hasAccess('superuser')) {
               $user->permissions = Input::get('permissions');
             }
-            $user->jobtitle = Input::get('jobtitle');
-            $user->phone = Input::get('phone');
+            $user->jobtitle = e(Input::get('jobtitle'));
+            $user->phone = e(Input::get('phone'));
             $user->location_id = Input::get('location_id');
             $user->company_id = Company::getIdForUser(Input::get('company_id'));
             $user->manager_id = Input::get('manager_id');
-            $user->notes = Input::get('notes');
+            $user->notes = e(Input::get('notes'));
 
             if ($user->manager_id == "") {
                 $user->manager_id = NULL;
@@ -403,7 +403,7 @@ class UsersController extends AdminController {
 
             // Do we want to update the user email?
             if (!Config::get('app.lock_passwords')) {
-                $user->email = Input::get('email');
+                $user->email = e(Input::get('email'));
             }
 
             // Get the current user groups
@@ -737,7 +737,7 @@ class UsersController extends AdminController {
             $this->encodeAllPermissions($permissions);
 
             $location_list = array('' => '') + Location::lists('name', 'id');
-            $company_list = Company::getSelectList();
+            $company_list = companyList();
             $manager_list = array('' => 'Select a User') + DB::table('users')
                             ->select(DB::raw('concat(last_name,", ",first_name," (",email,")") as full_name, id'))
                             ->whereNull('deleted_at')
@@ -955,7 +955,7 @@ class UsersController extends AdminController {
             $actions = '<nobr>';
 
             foreach ($user->groups as $group) {
-                $group_names .= '<a href="' . Config::get('app.url') . '/admin/groups/' . $group->id . '/edit" class="label  label-default">' . $group->name . '</a> ';
+                $group_names .= '<a href="' . Config::get('app.url') . '/admin/groups/' . $group->id . '/edit" class="label  label-default">' . e($group->name) . '</a> ';
             }
 
 
@@ -983,19 +983,19 @@ class UsersController extends AdminController {
                 'checkbox'      =>'<div class="text-center hidden-xs hidden-sm"><input type="checkbox" name="edit_user['.$user->id.']" class="one_required"></div>',
                 'name'          => '<a title="'.$user->fullName().'" href="../admin/users/'.$user->id.'/view">'.$user->fullName().'</a>',
                 'email'         => ($user->email!='') ?
-                            '<a href="mailto:'.$user->email.'" class="hidden-md hidden-lg">'.$user->email.'</a>'
-                            .'<a href="mailto:'.$user->email.'" class="hidden-xs hidden-sm"><i class="fa fa-envelope"></i></a>'
+                            '<a href="mailto:'.e($user->email).'" class="hidden-md hidden-lg">'.e($user->email).'</a>'
+                            .'<a href="mailto:'.e($user->email).'" class="hidden-xs hidden-sm"><i class="fa fa-envelope"></i></a>'
                             .'</span>' : '',
-                'username'         => $user->username,
-                'location'      => ($user->userloc) ? $user->userloc->name : '',
-                'manager'         => ($user->manager) ? '<a title="' . $user->manager->fullName() . '" href="users/' . $user->manager->id . '/view">' . $user->manager->fullName() . '</a>' : '',
+                'username'         => e($user->username),
+                'location'      => ($user->userloc) ? e($user->userloc->name) : '',
+                'manager'         => ($user->manager) ? '<a title="' . e($user->manager->fullName()) . '" href="users/' . $user->manager->id . '/view">' . e($user->manager->fullName()) . '</a>' : '',
                 'assets'        => $user->assets->count(),
-                'employee_num'  => $user->employee_num,
+                'employee_num'  => e($user->employee_num),
                 'licenses'        => $user->licenses->count(),
                 'accessories'        => $user->accessories->count(),
                 'consumables'        => $user->consumables->count(),
                 'groups'        => $group_names,
-                'notes'         => $user->notes,
+                'notes'         => e($user->notes),
                 'activated'      => ($user->activated=='1') ? '<i class="fa fa-check"></i>' : '<i class="fa fa-times"></i>',
                 'actions'       => ($actions) ? $actions : '',
                 'companyName'   => is_null($user->company) ? '' : e($user->company->name)
@@ -1249,17 +1249,42 @@ class UsersController extends AdminController {
             return Redirect::route('users')->with('error', Lang::get('admin/users/message.error.ldap_could_not_bind').ldap_error($ldapconn));
         }
 
-        // Perform the search
-        $search_results = @ldap_search($ldapconn, $base_dn, '('.$filter.')');
-        if (!$search_results) {
-            return Redirect::route('users')->with('error', Lang::get('admin/users/message.error.ldap_could_not_search').ldap_error($ldapconn));
-        }
+	// Set up LDAP pagination for very large databases
+	// @author Richard Hofman
+	$page_size = 500;
+	$cookie = '';
+	$result_set = array();
+	$global_count = 0;
 
-        // Get results
-        $results = @ldap_get_entries($ldapconn, $search_results);
-        if (!$results) {
-            return Redirect::route('users')->with('error', Lang::get('admin/users/message.error.ldap_could_not_get_entries').ldap_error($ldapconn));
-        }
+        // Perform the search
+	do {
+		// Paginate (non-critical, if not supported by server)
+		ldap_control_paged_result($ldapconn, $page_size, false, $cookie);
+
+        	$search_results = ldap_search($ldapconn, $base_dn, '('.$filter.')');
+
+	        if (!$search_results) {
+	            return Redirect::route('users')->with('error', Lang::get('admin/users/message.error.ldap_could_not_search').ldap_error($ldapconn));
+	        }
+
+	        // Get results from page
+	        $results = ldap_get_entries($ldapconn, $search_results);
+	        if (!$results) {
+	            return Redirect::route('users')->with('error', Lang::get('admin/users/message.error.ldap_could_not_get_entries').ldap_error($ldapconn));
+	        }
+
+		// Add results to result set
+		$global_count += $results['count'];
+		$result_set = array_merge($result_set, $results);
+
+		ldap_control_paged_result_response($ldapconn, $search_results, $cookie);
+
+	} while ($cookie !== null && $cookie != '');
+
+	// Clean up after search
+	$result_set['count'] = $global_count;
+	$results = $result_set;
+	ldap_control_paged_result($ldapconn, 0);
 
         $summary = array();
         for ($i = 0; $i < $results["count"]; $i++) {
